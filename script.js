@@ -58,9 +58,12 @@ function init() {
 
     // Generate heart positions
     heartPositions = generateHeartShape(CONFIG.particleCount);
+    console.log('Số vị trí trái tim:', heartPositions.length);
 
     // Generate name positions
     namePositions = generateNameShape(CONFIG.targetName, CONFIG.particleCount);
+    console.log('Số vị trí tên:', namePositions.length);
+    console.log('Tổng số particles:', CONFIG.particleCount);
 
     // Event listeners
     document.addEventListener('mousemove', onMouseMove);
@@ -173,8 +176,17 @@ function generateHeartShape(count) {
 
         positions.push({
             x: x,
-            y: y - 20, // LẬT NGƯỢC: Bỏ dấu trừ trước y
+            y: y - 20,
             z: (Math.random() - 0.5) * 30
+        });
+    }
+
+    // Đảm bảo đủ vị trí cho tất cả particles
+    while (positions.length < count) {
+        positions.push({
+            x: 0,
+            y: 0,
+            z: 0
         });
     }
 
@@ -300,15 +312,14 @@ function animate() {
             // Move to formation
             const targetPos = currentMode === 'heart' ? heartPositions[index] : namePositions[index];
 
-            particle.position.x += (targetPos.x - particle.position.x) * 0.05;
-            particle.position.y += (targetPos.y - particle.position.y) * 0.05;
-            particle.position.z += (targetPos.z - particle.position.z) * 0.05;
+            // Kiểm tra nếu có targetPos
+            if (targetPos) {
+                particle.position.x += (targetPos.x - particle.position.x) * 0.05;
+                particle.position.y += (targetPos.y - particle.position.y) * 0.05;
+                particle.position.z += (targetPos.z - particle.position.z) * 0.05;
 
-            // Áp dụng hiệu ứng tim đập
-            if (currentMode === 'heart') {
-                if (particle.userData.isPhotoSprite) {
-                    particle.scale.set(heartBeatScale, heartBeatScale, heartBeatScale);
-                } else {
+                // Áp dụng hiệu ứng tim đập
+                if (currentMode === 'heart') {
                     particle.scale.set(heartBeatScale, heartBeatScale, heartBeatScale);
                 }
             }
