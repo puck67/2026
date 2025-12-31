@@ -219,9 +219,9 @@ function generateNameShape(text, count) {
             const brightness = imageData.data[index];
 
             if (brightness > 128) {
-                // Responsive: nhỏ hơn trên mobile
+                // Responsive: điều chỉnh theo màn hình
                 const isMobile = window.innerWidth < 768;
-                const scale = isMobile ? 0.3 : 0.45; // Mobile: 0.3, Desktop: 0.45
+                const scale = isMobile ? 0.25 : 0.45; // Mobile: 0.25 (nhỏ hơn), Desktop: 0.45
 
                 pixels.push({
                     x: (x - canvas.width / 2) * scale,
