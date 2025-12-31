@@ -3,15 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Vũ Trụ Ký Ức - Happy New Year 2026</title>
+    <title>Happy New Year 2026 - Hạnh yêu dấu 💖</title>
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - Premium Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600;700&family=Raleway:wght@200;300;400;600;700;900&family=Playfair+Display:wght@400;700;900&display=swap" rel="stylesheet">
 
     <style>
-        /* ==================== RESET & BASE ==================== */
+        /* ==================== CSS VARIABLES ====================*/
+        :root {
+            --primary-pink: #ff0a78;
+            --primary-purple: #9d4edd;
+            --primary-blue: #3c096c;
+            --accent-gold: #ffd60a;
+            --accent-cyan: #00f5ff;
+            --bg-dark: #0a0014;
+            --glow-pink: 0 0 40px rgba(255, 10, 120, 0.6), 0 0 80px rgba(255, 10, 120, 0.4);
+            --glow-purple: 0 0 40px rgba(157, 78, 221, 0.6);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -19,35 +30,123 @@
         }
 
         body {
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Raleway', sans-serif;
             overflow: hidden;
-            background: #000000;
-            color: #ffffff;
-            position: relative;
+            background: radial-gradient(ellipse at bottom, #1b0a2a 0%, #000000 100%);
+            color: white;
             width: 100vw;
             height: 100vh;
             -webkit-user-select: none;
             user-select: none;
+            cursor: none;
         }
 
-        /* ==================== CANVAS 3D ==================== */
+        /* ==================== CUSTOM CURSOR ==================== */
+        .cursor {
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary-pink);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            transition: transform 0.15s ease;
+            mix-blend-mode: difference;
+        }
+
+        .cursor-follower {
+            width: 40px;
+            height: 40px;
+            border: 1px solid rgba(255, 10, 120, 0.3);
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9998;
+            transition: transform 0.3s ease;
+        }
+
+        .cursor.expand {
+            transform: scale(2);
+            border-color: var(--accent-cyan);
+        }
+
+        @media (hover: none) {
+            body { cursor: default; }
+            .cursor, .cursor-follower { display: none; }
+        }
+
+        /* ==================== STARS BACKGROUND ==================== */
+        .stars {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.6;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite ease-in-out;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.5); }
+        }
+
+        /* ==================== THREE.JS CANVAS ==================== */
         #canvas3d {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             z-index: 1;
             touch-action: none;
         }
 
-        /* ==================== UI OVERLAY ==================== */
-        .overlay {
+        /* ==================== LOADING SCREEN ==================== */
+        .loading-screen {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
+            background: #000;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.8s ease;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(255, 10, 120, 0.3);
+            border-top: 3px solid var(--primary-pink);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 18px;
+            color: var(--primary-pink);
+            margin-top: 20px;
+            letter-spacing: 2px;
+        }
+
+        /* ==================== MAIN CONTAINER ==================== */
+        .main-container {
+            position: fixed;
+            inset: 0;
             z-index: 10;
             pointer-events: none;
             display: flex;
@@ -57,335 +156,630 @@
             padding: 20px;
         }
 
-        /* ==================== COUNTDOWN ==================== */
-        #countdown {
-            font-size: 18px;
-            font-weight: 300;
-            letter-spacing: 2px;
-            text-align: center;
-            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8),
-                         0 0 40px rgba(138, 43, 226, 0.6);
-            margin-top: 40vh;
-            opacity: 0;
-            transition: opacity 0.5s ease;
-        }
-
-        #countdown.show {
-            opacity: 1;
-        }
-
-        #countdown .time-unit {
-            display: inline-block;
-            margin: 0 8px;
-        }
-
-        #countdown .number {
-            font-size: 32px;
-            font-weight: 600;
-            color: #ff69b4;
-        }
-
-        #countdown .label {
-            font-size: 14px;
-            color: #ba7bff;
-            display: block;
-        }
-
-        /* ==================== NEW YEAR MESSAGE ==================== */
-        #newYearMessage {
+        /* ==================== LOGO ==================== */
+        .logo {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
             text-align: center;
             opacity: 0;
-            transition: opacity 0.8s ease;
-            margin-top: 20vh;
+            animation: fadeInDown 1s ease forwards 0.5s;
         }
 
-        #newYearMessage.show {
-            opacity: 1;
-        }
-
-        #newYearMessage h1 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 42px;
-            font-weight: 700;
-            background: linear-gradient(45deg, #ff69b4, #ba7bff, #ff1493);
+        .logo h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(24px, 5vw, 48px);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple), var(--accent-cyan));
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
-            margin-bottom: 30px;
-            line-height: 1.4;
+            letter-spacing: 4px;
         }
 
-        #btnShowMessage {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 16px;
-            font-weight: 600;
-            padding: 15px 40px;
-            background: linear-gradient(135deg, #ff69b4, #8a2be2);
-            border: none;
+        .logo p {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(14px, 2.5vw, 20px);
+            color: var(--accent-gold);
+            margin-top: 8px;
+            letter-spacing: 3px;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-30px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* ==================== COUNTDOWN ==================== */
+        .countdown-section {
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            margin-top: 30vh;
+        }
+
+        .countdown-section.show {
+            opacity: 1;
+            animation: pulseGlow 2s infinite ease-in-out;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { filter: drop-shadow(0 0 20px rgba(255, 10, 120, 0.5)); }
+            50% { filter: drop-shadow(0 0 40px rgba(255, 10, 120, 0.9)); }
+        }
+
+        .countdown-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(20px, 4vw, 32px);
+            color: var(--accent-gold);
+            margin-bottom: 30px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        .countdown-display {
+            display: flex;
+            justify-content: center;
+            gap: clamp(15px, 3vw, 30px);
+            flex-wrap: wrap;
+        }
+
+        .time-box {
+            background: linear-gradient(135deg, rgba(255, 10, 120, 0.1), rgba(157, 78, 221, 0.1));
+            border: 2px solid rgba(255, 10, 120, 0.3);
+            border-radius: 20px;
+            padding: clamp(15px, 3vw, 25px);
+            min-width: clamp(70px, 15vw, 100px);
+            backdrop-filter: blur(10px);
+            box-shadow: var(--glow-pink);
+            animation: borderPulse 3s infinite;
+        }
+
+        @keyframes borderPulse {
+            0%, 100% { border-color: rgba(255, 10, 120, 0.3); }
+            50% { border-color: rgba(255, 10, 120, 0.8); }
+        }
+
+        .time-number {
+            font-size: clamp(32px, 8vw, 56px);
+            font-weight: 900;
+            color: var(--primary-pink);
+            text-shadow: var(--glow-pink);
+            display: block;
+        }
+
+        .time-label {
+            font-size: clamp(10px, 2vw, 14px);
+            color: var(--primary-purple);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 8px;
+        }
+
+        /* ==================== CTA BUTTON ==================== */
+        .cta-button {
+            position: absolute;
+            bottom: clamp(60px, 10vh, 120px);
+            left: 50%;
+            transform: translateX(-50%);
+            pointer-events: auto;
+            opacity: 0;
+            animation: fadeInUp 1s ease forwards 1.5s;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(30px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        .btn-recap {
+            font-family: 'Raleway', sans-serif;
+            font-size: clamp(14px, 3vw, 18px);
+            font-weight: 700;
+            padding: clamp(15px, 3vw, 20px) clamp(40px, 8vw, 60px);
+            background: linear-gradient(135deg, var(--primary-pink), var(--primary-purple));
+            border: 2px solid var(--accent-cyan);
             border-radius: 50px;
             color: white;
             cursor: pointer;
-            box-shadow: 0 5px 25px rgba(255, 105, 180, 0.5);
-            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: var(--glow-pink);
+            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-recap::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn-recap:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-recap:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 50px rgba(255, 10, 120, 0.8);
+        }
+
+        /* ==================== RECAP MODAL ==================== */
+        .recap-modal {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 100;
+            display: none;
             pointer-events: auto;
         }
 
-        #btnShowMessage:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 35px rgba(255, 105, 180, 0.7);
+        .recap-modal.show { display: block; }
+
+        .light-beam {
+            position: absolute;
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom,
+                transparent 0%,
+                var(--accent-cyan) 20%,
+                var(--primary-pink) 50%,
+                var(--primary-purple) 80%,
+                transparent 100%);
+            left: 50%;
+            transform: translateX(-50%);
+            box-shadow: 0 0 40px var(--accent-cyan), 0 0 80px var(--primary-pink);
+            animation: beamPulse 2s infinite;
         }
 
-        #btnShowMessage:active {
-            transform: translateY(-1px);
+        @keyframes beamPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
 
-        /* ==================== MESSAGE MODAL ==================== */
-        #messageModal {
-            position: fixed;
-            top: 0;
-            left: 0;
+        .memories-container {
+            position: relative;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(30px, 5vh, 60px);
+            padding: 40px 20px;
+            overflow-y: auto;
+        }
+
+        .memory-card {
+            position: relative;
+            width: clamp(250px, 80vw, 400px);
+            height: clamp(250px, 80vw, 400px);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid transparent;
+            background: linear-gradient(#000, #000) padding-box,
+                        linear-gradient(135deg, var(--primary-pink), var(--accent-cyan)) border-box;
+            box-shadow: var(--glow-purple);
+            opacity: 0;
+            transform: scale(0.8) translateY(50px);
+            animation: memoryReveal 0.8s ease forwards;
+        }
+
+        .memory-card:nth-child(1) { animation-delay: 0.5s; }
+        .memory-card:nth-child(2) { animation-delay: 1s; }
+        .memory-card:nth-child(3) { animation-delay: 1.5s; }
+        .memory-card:nth-child(4) { animation-delay: 2s; }
+        .memory-card:nth-child(5) { animation-delay: 2.5s; }
+
+        @keyframes memoryReveal {
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .memory-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.8) contrast(1.1);
+            transition: all 0.5s ease;
+        }
+
+        .memory-card:hover img {
+            filter: brightness(1) contrast(1.2);
+            transform: scale(1.1);
+        }
+
+        .memory-placeholder {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(255, 10, 120, 0.2), rgba(157, 78, 221, 0.2));
+            font-size: clamp(14px, 2.5vw, 18px);
+            color: rgba(255, 255, 255, 0.5);
+            text-align: center;
+            padding: 20px;
+            height: 100%;
+        }
+
+        .memory-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(16px, 3vw, 22px);
+            color: var(--accent-gold);
+            text-align: center;
+        }
+
+        .btn-close-recap {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border: 2px solid var(--primary-pink);
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .btn-close-recap:hover {
+            background: rgba(255, 10, 120, 0.3);
+            transform: rotate(90deg) scale(1.1);
+        }
+
+        .btn-close-recap::before,
+        .btn-close-recap::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 2px;
+            background: var(--primary-pink);
+        }
+
+        .btn-close-recap::before { transform: rotate(45deg); }
+        .btn-close-recap::after { transform: rotate(-45deg); }
+
+        /* ==================== NEW YEAR CELEBRATION ==================== */
+        .newyear-celebration {
+            position: fixed;
+            inset: 0;
+            z-index: 50;
             display: none;
             justify-content: center;
             align-items: center;
-            pointer-events: auto;
+            flex-direction: column;
+            pointer-events: none;
         }
 
-        #messageModal.show {
-            display: flex;
-        }
+        .newyear-celebration.show { display: flex; }
 
-        .modal-content {
-            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(255, 105, 180, 0.3));
-            backdrop-filter: blur(10px);
-            border: 2px solid rgba(255, 105, 180, 0.5);
-            border-radius: 20px;
-            padding: 40px 30px;
-            max-width: 90%;
-            max-height: 80%;
-            overflow-y: auto;
-            box-shadow: 0 10px 50px rgba(255, 105, 180, 0.4);
-        }
-
-        .modal-content h2 {
-            font-family: 'Dancing Script', cursive;
-            font-size: 32px;
-            margin-bottom: 20px;
-            color: #ff69b4;
+        .newyear-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(36px, 8vw, 80px);
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--accent-gold), var(--primary-pink), var(--accent-cyan));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
             text-align: center;
-        }
-
-        .modal-content p {
-            font-size: 16px;
-            line-height: 1.8;
-            color: #ffffff;
-            text-align: center;
+            opacity: 0;
+            animation: titleExplosion 1s ease forwards;
             margin-bottom: 30px;
         }
 
-        #btnCloseModal {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 14px;
-            padding: 10px 30px;
-            background: rgba(255, 105, 180, 0.3);
-            border: 1px solid #ff69b4;
-            border-radius: 25px;
-            color: white;
-            cursor: pointer;
-            display: block;
-            margin: 0 auto;
-            transition: all 0.3s ease;
+        @keyframes titleExplosion {
+            0% { opacity: 0; transform: scale(0.5); filter: blur(20px); }
+            50% { transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); filter: blur(0); }
         }
 
-        #btnCloseModal:hover {
-            background: rgba(255, 105, 180, 0.5);
+        .love-message {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(18px, 4vw, 32px);
+            color: white;
+            text-align: center;
+            max-width: 90%;
+            line-height: 1.8;
+            opacity: 0;
+            animation: fadeIn 1.5s ease forwards 1s;
+            padding: 0 20px;
         }
+
+        .love-message .highlight {
+            color: var(--accent-gold);
+            font-weight: 700;
+            text-shadow: 0 0 20px var(--accent-gold);
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* ==================== FIREWORKS CANVAS ==================== */
+        #fireworksCanvas {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            pointer-events: none;
+            display: none;
+        }
+
+        #fireworksCanvas.show { display: block; }
 
         /* ==================== MUSIC CONTROL ==================== */
-        #musicControl {
+        .music-control {
             position: fixed;
             top: 20px;
             right: 20px;
-            z-index: 50;
-            width: 50px;
-            height: 50px;
-            background: rgba(255, 105, 180, 0.3);
-            border: 2px solid #ff69b4;
+            z-index: 200;
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 10, 120, 0.2);
+            border: 2px solid var(--primary-pink);
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             cursor: pointer;
             pointer-events: auto;
-            transition: all 0.3s ease;
-            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.4);
+            transition: all 0.4s ease;
+            box-shadow: var(--glow-pink);
         }
 
-        #musicControl:hover {
-            background: rgba(255, 105, 180, 0.5);
-            transform: scale(1.1);
+        .music-control:hover {
+            background: rgba(255, 10, 120, 0.4);
+            transform: scale(1.15) rotate(10deg);
         }
 
-        #musicControl svg {
-            width: 24px;
-            height: 24px;
+        .music-control svg {
+            width: 28px;
+            height: 28px;
             fill: white;
         }
 
-        /* ==================== FIREWORKS CANVAS ==================== */
-        #fireworksCanvas {
+        /* ==================== GYRO PROMPT ==================== */
+        .gyro-prompt {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 5;
-            pointer-events: none;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 300;
+            background: linear-gradient(135deg, rgba(255, 10, 120, 0.9), rgba(157, 78, 221, 0.9));
+            backdrop-filter: blur(20px);
+            border: 2px solid var(--accent-cyan);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
             display: none;
+            pointer-events: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
         }
 
-        #fireworksCanvas.show {
+        .gyro-prompt.show {
             display: block;
+            animation: popIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+        }
+
+        @keyframes popIn {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+
+        .gyro-prompt h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(20px, 4vw, 28px);
+            margin-bottom: 15px;
+        }
+
+        .gyro-prompt p {
+            font-size: clamp(14px, 2.5vw, 16px);
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .btn-enable-gyro {
+            font-family: 'Raleway', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            padding: 15px 40px;
+            background: white;
+            color: var(--primary-pink);
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-enable-gyro:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255, 255, 255, 0.3);
         }
 
         /* ==================== RESPONSIVE ==================== */
         @media (max-width: 600px) {
-            #countdown .number {
-                font-size: 24px;
-            }
-
-            #countdown .label {
-                font-size: 12px;
-            }
-
-            #newYearMessage h1 {
-                font-size: 32px;
-            }
-
-            #btnShowMessage {
-                font-size: 14px;
-                padding: 12px 30px;
-            }
-
-            .modal-content {
-                padding: 30px 20px;
-            }
-
-            .modal-content h2 {
-                font-size: 26px;
-            }
-
-            .modal-content p {
-                font-size: 14px;
-            }
+            .logo { top: 20px; }
+            .countdown-section { margin-top: 25vh; }
+            .cta-button { bottom: 40px; }
         }
     </style>
 </head>
 <body>
-    <!-- Canvas cho Three.js -->
+    <!-- Loading Screen -->
+    <div class="loading-screen">
+        <div class="loader"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div class="cursor"></div>
+    <div class="cursor-follower"></div>
+
+    <!-- Stars Background -->
+    <div class="stars" id="starsContainer"></div>
+
+    <!-- Three.js Canvas -->
     <canvas id="canvas3d"></canvas>
 
-    <!-- Canvas cho pháo hoa -->
+    <!-- Fireworks Canvas -->
     <canvas id="fireworksCanvas"></canvas>
 
-    <!-- UI Overlay -->
-    <div class="overlay">
-        <!-- Đồng hồ đếm ngược (hiện khi chưa tới năm mới) -->
-        <div id="countdown">
-            <div class="time-unit">
-                <span class="number" id="days">00</span>
-                <span class="label">ngày</span>
-            </div>
-            <div class="time-unit">
-                <span class="number" id="hours">00</span>
-                <span class="label">giờ</span>
-            </div>
-            <div class="time-unit">
-                <span class="number" id="minutes">00</span>
-                <span class="label">phút</span>
-            </div>
-            <div class="time-unit">
-                <span class="number" id="seconds">00</span>
-                <span class="label">giây</span>
+    <!-- Main Container -->
+    <div class="main-container">
+        <div class="logo">
+            <h1>2026</h1>
+            <p>A New Beginning</p>
+        </div>
+
+        <div class="countdown-section" id="countdownSection">
+            <div class="countdown-title">Đếm ngược đến năm mới</div>
+            <div class="countdown-display">
+                <div class="time-box">
+                    <span class="time-number" id="days">00</span>
+                    <span class="time-label">Ngày</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-number" id="hours">00</span>
+                    <span class="time-label">Giờ</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-number" id="minutes">00</span>
+                    <span class="time-label">Phút</span>
+                </div>
+                <div class="time-box">
+                    <span class="time-number" id="seconds">00</span>
+                    <span class="time-label">Giây</span>
+                </div>
             </div>
         </div>
 
-        <!-- Thông điệp năm mới (hiện khi đã qua năm mới) -->
-        <div id="newYearMessage">
-            <h1>Happy New Year 2026,<br>My Love ❤️</h1>
-            <button id="btnShowMessage">Xem lời chúc</button>
-        </div>
-    </div>
-
-    <!-- Modal lời chúc -->
-    <div id="messageModal">
-        <div class="modal-content">
-            <h2>Lời chúc năm mới 2026 💝</h2>
-            <p id="messageText">
-                <!-- Thay lời chúc của bạn ở đây -->
-                Em yêu ơi,<br><br>
-                Năm mới 2026 đã đến rồi đó! Anh muốn gửi đến em những điều tốt đẹp nhất,<br>
-                những nụ cười rạng rỡ nhất, và tình yêu thương vô tận.<br><br>
-                Cảm ơn em đã luôn ở bên anh, làm cuộc đời anh thêm ý nghĩa.<br>
-                Chúc em luôn khỏe mạnh, hạnh phúc và thành công trong mọi điều.<br><br>
-                Yêu em nhiều lắm! 💖<br>
-                - Anh của em -
-            </p>
-            <button id="btnCloseModal">Đóng</button>
+        <div class="cta-button">
+            <button class="btn-recap" id="btnRecap">✨ Xem Kỷ Niệm Của Chúng Ta</button>
         </div>
     </div>
 
-    <!-- Nút điều khiển nhạc -->
-    <div id="musicControl" title="Bật/Tắt nhạc">
-        <svg id="musicIcon" viewBox="0 0 24 24">
+    <!-- New Year Celebration -->
+    <div class="newyear-celebration" id="newYearCelebration">
+        <h1 class="newyear-title">HAPPY NEW YEAR 2026!</h1>
+        <div class="love-message">
+            Gửi em <span class="highlight">Hạnh</span> yêu dấu của anh,<br><br>
+            Năm mới đã đến rồi em ơi! 🎊<br>
+            Cảm ơn em đã luôn ở bên anh, làm cuộc đời anh thêm ý nghĩa.<br><br>
+            Chúc em luôn tươi cười, khỏe mạnh, và hạnh phúc nhất trên đời.<br>
+            Anh sẽ luôn yêu em, bảo vệ em, và làm em hạnh phúc mỗi ngày.<br><br>
+            <span class="highlight">Yêu em vô cùng! 💖</span><br>
+            - Anh của em -
+        </div>
+    </div>
+
+    <!-- Recap Modal -->
+    <div class="recap-modal" id="recapModal">
+        <div class="light-beam"></div>
+        <button class="btn-close-recap" id="btnCloseRecap"></button>
+
+        <div class="memories-container">
+            <!-- THÊM ẢNH CỦA BẠN Ở ĐÂY -->
+            <!-- Ví dụ: <img src="link_anh_1.jpg" alt="Memory 1"> -->
+
+            <div class="memory-card">
+                <div class="memory-placeholder">
+                    📷 Thêm ảnh kỷ niệm đầu tiên<br>
+                    (Bỏ comment thẻ img bên dưới và thêm link)
+                </div>
+                <!-- <img src="YOUR_IMAGE_URL_1.jpg" alt="Memory 1"> -->
+                <div class="memory-caption">Khoảnh khắc đầu tiên</div>
+            </div>
+
+            <div class="memory-card">
+                <div class="memory-placeholder">📷 Thêm ảnh kỷ niệm thứ hai</div>
+                <!-- <img src="YOUR_IMAGE_URL_2.jpg" alt="Memory 2"> -->
+                <div class="memory-caption">Những ngày bên nhau</div>
+            </div>
+
+            <div class="memory-card">
+                <div class="memory-placeholder">📷 Thêm ảnh kỷ niệm thứ ba</div>
+                <!-- <img src="YOUR_IMAGE_URL_3.jpg" alt="Memory 3"> -->
+                <div class="memory-caption">Nụ cười của em Hạnh</div>
+            </div>
+
+            <div class="memory-card">
+                <div class="memory-placeholder">📷 Thêm ảnh kỷ niệm thứ tư</div>
+                <!-- <img src="YOUR_IMAGE_URL_4.jpg" alt="Memory 4"> -->
+                <div class="memory-caption">Kỷ niệm ngọt ngào</div>
+            </div>
+
+            <div class="memory-card">
+                <div class="memory-placeholder">📷 Thêm ảnh kỷ niệm thứ năm</div>
+                <!-- <img src="YOUR_IMAGE_URL_5.jpg" alt="Memory 5"> -->
+                <div class="memory-caption">Mãi yêu em 💖</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gyro Prompt -->
+    <div class="gyro-prompt" id="gyroPrompt">
+        <h3>🎮 Bật Hiệu Ứng 3D</h3>
+        <p>Cho phép sử dụng cảm biến để trái tim xoay theo chuyển động điện thoại của bạn!</p>
+        <button class="btn-enable-gyro" id="btnEnableGyro">Bật ngay</button>
+    </div>
+
+    <!-- Music Control -->
+    <div class="music-control" id="musicControl" title="Bật/Tắt nhạc">
+        <svg viewBox="0 0 24 24">
             <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
         </svg>
     </div>
 
-    <!-- Audio (thêm link nhạc của bạn vào src) -->
+    <!-- Audio Elements -->
+    <!-- THÊM LINK NHẠC CỦA BẠN Ở ĐÂY -->
     <audio id="bgMusic" loop>
-        <!-- Thay link nhạc nền của bạn ở đây -->
         <source src="" type="audio/mpeg">
+        <!-- Thay link nhạc nền (background music) -->
     </audio>
 
-    <!-- Three.js từ CDN -->
+    <audio id="recapSound">
+        <source src="" type="audio/mpeg">
+        <!-- Thay link âm thanh whoosh/time travel cho recap -->
+    </audio>
+
+    <audio id="fireworkSound">
+        <source src="" type="audio/mpeg">
+        <!-- Thay link âm thanh pháo hoa nổ -->
+    </audio>
+
+    <!-- Three.js CDN -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
     <script>
-        // ==================== BIẾN CẤU HÌNH (Có thể chỉnh sửa) ====================
-
-        // Lời chúc (có thể thay đổi nội dung trong HTML phía trên hoặc qua JS)
-        const MESSAGE = `Em yêu ơi,
-
-Năm mới 2026 đã đến rồi đó! Anh muốn gửi đến em những điều tốt đẹp nhất,
-những nụ cười rạng rỡ nhất, và tình yêu thương vô tận.
-
-Cảm ơn em đã luôn ở bên anh, làm cuộc đời anh thêm ý nghĩa.
-Chúc em luôn khỏe mạnh, hạnh phúc và thành công trong mọi điều.
-
-Yêu em nhiều lắm! 💖
-- Anh của em -`;
-
-        // Link ảnh (dự phòng cho texture particles nếu cần)
-        const IMG_URL = ''; // Để trống hoặc thay link ảnh texture
-
-        // Số lượng hạt (giảm xuống cho mobile, tăng lên cho desktop mạnh hơn)
-        const PARTICLE_COUNT = 1800; // Chỉnh ở đây để tăng/giảm số hạt
-
-        // Tốc độ xoay tự động (khi không có gyroscope)
-        const AUTO_ROTATION_SPEED = 0.001; // Chỉnh ở đây để điều chỉnh tốc độ xoay
-
-        // Mốc thời gian năm mới
+        // ==================== CONFIGURATION ====================
         const NEW_YEAR_2026 = new Date('2026-01-01T00:00:00').getTime();
+        const PARTICLE_COUNT = 2000;
+        const AUTO_ROTATION_SPEED = 0.001;
 
-        // ==================== BIẾN TOÀN CỤC ====================
-
+        // ==================== GLOBAL VARIABLES ====================
         let scene, camera, renderer, particles;
-        let gyroPermissionGranted = false;
+        let gyroEnabled = false;
         let mouseX = 0, mouseY = 0;
         let targetRotationX = 0, targetRotationY = 0;
         let currentRotationX = 0, currentRotationY = 0;
@@ -393,21 +787,49 @@ Yêu em nhiều lắm! 💖
         let isNewYear = false;
 
         // Elements
-        const canvas3d = document.getElementById('canvas3d');
-        const countdown = document.getElementById('countdown');
-        const newYearMessage = document.getElementById('newYearMessage');
-        const messageModal = document.getElementById('messageModal');
-        const musicControl = document.getElementById('musicControl');
-        const bgMusic = document.getElementById('bgMusic');
+        const loadingScreen = document.querySelector('.loading-screen');
+        const countdownSection = document.getElementById('countdownSection');
+        const newYearCelebration = document.getElementById('newYearCelebration');
+        const recapModal = document.getElementById('recapModal');
         const fireworksCanvas = document.getElementById('fireworksCanvas');
+        const musicControl = document.getElementById('musicControl');
+        const gyroPrompt = document.getElementById('gyroPrompt');
 
-        // ==================== KHỞI TẠO THREE.JS ====================
+        const bgMusic = document.getElementById('bgMusic');
+        const recapSound = document.getElementById('recapSound');
+        const fireworkSound = document.getElementById('fireworkSound');
 
+        // ==================== CUSTOM CURSOR ====================
+        const cursor = document.querySelector('.cursor');
+        const cursorFollower = document.querySelector('.cursor-follower');
+
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.transform = `translate(${e.clientX - 10}px, ${e.clientY - 10}px)`;
+            cursorFollower.style.transform = `translate(${e.clientX - 20}px, ${e.clientY - 20}px)`;
+        });
+
+        document.querySelectorAll('button, .btn-recap, .music-control').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('expand'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('expand'));
+        });
+
+        // ==================== STARS BACKGROUND ====================
+        function createStars() {
+            const container = document.getElementById('starsContainer');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(star);
+            }
+        }
+
+        // ==================== THREE.JS ====================
         function initThreeJS() {
-            // Scene
             scene = new THREE.Scene();
 
-            // Camera (Perspective cho cảm giác 3D)
             camera = new THREE.PerspectiveCamera(
                 75,
                 window.innerWidth / window.innerHeight,
@@ -416,45 +838,34 @@ Yêu em nhiều lắm! 💖
             );
             camera.position.z = 50;
 
-            // Renderer
             renderer = new THREE.WebGLRenderer({
-                canvas: canvas3d,
+                canvas: document.getElementById('canvas3d'),
                 antialias: true,
                 alpha: true
             });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Giới hạn cho mobile
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-            // Tạo hạt hình trái tim
             createHeartParticles();
-
-            // Tạo sao nền
             createStarfield();
 
-            // Xử lý resize
             window.addEventListener('resize', onWindowResize);
         }
-
-        // ==================== TẠO HẠT HÌNH TRÁI TIM ====================
 
         function createHeartParticles() {
             const geometry = new THREE.BufferGeometry();
             const positions = [];
             const colors = [];
 
-            // Tạo điểm theo công thức toán học hình trái tim 3D
             for (let i = 0; i < PARTICLE_COUNT; i++) {
-                // Tham số ngẫu nhiên
                 const t = Math.random() * Math.PI * 2;
                 const u = Math.random() * Math.PI * 2;
 
-                // Công thức hình trái tim 3D (Heart Surface)
-                const scale = 5; // Kích thước trái tim
+                const scale = 5;
                 const x = scale * (16 * Math.pow(Math.sin(t), 3));
                 const y = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-                const z = scale * Math.sin(u) * 3; // Thêm chiều sâu
+                const z = scale * Math.sin(u) * 3;
 
-                // Thêm nhiễu ngẫu nhiên để tạo đám mây
                 const noise = 0.5;
                 positions.push(
                     x + (Math.random() - 0.5) * noise,
@@ -462,25 +873,20 @@ Yêu em nhiều lắm! 💖
                     z + (Math.random() - 0.5) * noise
                 );
 
-                // Màu hồng pastel và tím neon
                 const color = new THREE.Color();
-                if (Math.random() > 0.5) {
-                    color.setHSL(0.92, 1.0, 0.7); // Hồng pastel
-                } else {
-                    color.setHSL(0.78, 1.0, 0.6); // Tím neon
-                }
+                const hue = Math.random() > 0.5 ? 0.92 : 0.78;
+                color.setHSL(hue, 1.0, Math.random() * 0.3 + 0.5);
                 colors.push(color.r, color.g, color.b);
             }
 
             geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
             geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
-            // Material
             const material = new THREE.PointsMaterial({
-                size: 0.3, // Kích thước hạt
+                size: 0.35,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.8,
+                opacity: 0.9,
                 blending: THREE.AdditiveBlending,
                 depthWrite: false
             });
@@ -489,119 +895,112 @@ Yêu em nhiều lắm! 💖
             scene.add(particles);
         }
 
-        // ==================== TẠO SAO NỀN ====================
-
         function createStarfield() {
-            const starGeometry = new THREE.BufferGeometry();
-            const starPositions = [];
+            const geometry = new THREE.BufferGeometry();
+            const positions = [];
 
-            for (let i = 0; i < 500; i++) {
-                starPositions.push(
+            for (let i = 0; i < 800; i++) {
+                positions.push(
                     (Math.random() - 0.5) * 200,
                     (Math.random() - 0.5) * 200,
                     (Math.random() - 0.5) * 200
                 );
             }
 
-            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
 
-            const starMaterial = new THREE.PointsMaterial({
+            const material = new THREE.PointsMaterial({
                 color: 0xffffff,
-                size: 0.1,
+                size: 0.15,
                 transparent: true,
-                opacity: 0.6
+                opacity: 0.7
             });
 
-            const stars = new THREE.Points(starGeometry, starMaterial);
+            const stars = new THREE.Points(geometry, material);
             scene.add(stars);
         }
-
-        // ==================== ANIMATION LOOP ====================
 
         function animate() {
             requestAnimationFrame(animate);
 
-            // Hiệu ứng thở (floating)
             const time = Date.now() * 0.001;
             if (particles) {
                 particles.rotation.y = currentRotationY;
                 particles.rotation.x = currentRotationX;
 
-                // Chuyển động nhẹ lên xuống
                 particles.position.y = Math.sin(time * 0.5) * 0.5;
 
-                // Scale nhẹ (thở)
-                const breathScale = 1 + Math.sin(time * 0.8) * 0.05;
+                const breathScale = 1 + Math.sin(time * 0.8) * 0.08;
                 particles.scale.set(breathScale, breathScale, breathScale);
             }
 
-            // Làm mượt rotation (easing)
             currentRotationX += (targetRotationX - currentRotationX) * 0.05;
             currentRotationY += (targetRotationY - currentRotationY) * 0.05;
 
-            // Xoay tự động nhẹ khi không tương tác
-            if (!gyroPermissionGranted && mouseX === 0 && mouseY === 0) {
+            if (!gyroEnabled && mouseX === 0 && mouseY === 0) {
                 targetRotationY += AUTO_ROTATION_SPEED;
             }
 
             renderer.render(scene, camera);
         }
 
-        // ==================== GYROSCOPE (Cảm biến con quay hồi chuyển) ====================
-
-        function requestGyroPermission() {
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                // iOS 13+ cần xin phép
-                DeviceOrientationEvent.requestPermission()
-                    .then(permissionState => {
-                        if (permissionState === 'granted') {
-                            enableGyroscope();
-                        } else {
-                            console.log('Gyroscope permission denied');
-                            useFallbackControls();
-                        }
-                    })
-                    .catch(console.error);
+        // ==================== GYROSCOPE ====================
+        function showGyroPrompt() {
+            if (typeof DeviceOrientationEvent !== 'undefined' &&
+                typeof DeviceOrientationEvent.requestPermission === 'function') {
+                gyroPrompt.classList.add('show');
             } else if (window.DeviceOrientationEvent) {
-                // Android và trình duyệt khác
                 enableGyroscope();
             } else {
-                // Không hỗ trợ gyroscope
                 useFallbackControls();
             }
         }
 
+        document.getElementById('btnEnableGyro').addEventListener('click', () => {
+            if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+                DeviceOrientationEvent.requestPermission()
+                    .then(state => {
+                        if (state === 'granted') {
+                            enableGyroscope();
+                            gyroPrompt.classList.remove('show');
+                        } else {
+                            useFallbackControls();
+                        }
+                    })
+                    .catch(console.error);
+            } else {
+                enableGyroscope();
+                gyroPrompt.classList.remove('show');
+            }
+        });
+
         function enableGyroscope() {
-            gyroPermissionGranted = true;
+            gyroEnabled = true;
             window.addEventListener('deviceorientation', handleOrientation);
+            console.log('✅ Gyroscope enabled!');
         }
 
         function handleOrientation(event) {
-            // Beta: nghiêng trước/sau (-180 đến 180)
-            // Gamma: nghiêng trái/phải (-90 đến 90)
-            const beta = event.beta; // Trước/sau
-            const gamma = event.gamma; // Trái/phải
+            const beta = event.beta;
+            const gamma = event.gamma;
 
-            // Chuyển đổi sang radian và giới hạn
-            targetRotationX = (beta / 180) * Math.PI * 0.3;
-            targetRotationY = (gamma / 90) * Math.PI * 0.3;
+            if (beta !== null && gamma !== null) {
+                targetRotationX = (beta / 180) * Math.PI * 0.4;
+                targetRotationY = (gamma / 90) * Math.PI * 0.4;
+            }
         }
 
-        // ==================== FALLBACK CONTROLS (Chuột/Touch) ====================
-
         function useFallbackControls() {
-            // Mouse
-            document.addEventListener('mousemove', (event) => {
-                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
-                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+            document.addEventListener('mousemove', (e) => {
+                mouseX = (e.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(e.clientY / window.innerHeight) * 2 + 1;
                 targetRotationY = mouseX * Math.PI * 0.3;
                 targetRotationX = mouseY * Math.PI * 0.3;
             });
 
-            // Touch
-            document.addEventListener('touchmove', (event) => {
-                if (event.touches.length > 0) {
-                    const touch = event.touches[0];
+            document.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 0) {
+                    const touch = e.touches[0];
                     mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
                     mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
                     targetRotationY = mouseX * Math.PI * 0.3;
@@ -610,21 +1009,16 @@ Yêu em nhiều lắm! 💖
             });
         }
 
-        // ==================== TOUCH INTERACTION (Tap để tạo hiệu ứng pulse) ====================
-
-        function initTouchInteraction() {
-            canvas3d.addEventListener('click', pulseEffect);
-            canvas3d.addEventListener('touchstart', pulseEffect);
-        }
+        // ==================== TOUCH PULSE ====================
+        document.getElementById('canvas3d').addEventListener('click', pulseEffect);
+        document.getElementById('canvas3d').addEventListener('touchstart', pulseEffect);
 
         function pulseEffect() {
             if (!particles) return;
 
-            // Tạo hiệu ứng bung ra rồi tụ lại
             const positions = particles.geometry.attributes.position.array;
-            const originalPositions = positions.slice();
+            const original = positions.slice();
 
-            // Bung ra
             for (let i = 0; i < positions.length; i += 3) {
                 positions[i] *= 1.5;
                 positions[i + 1] *= 1.5;
@@ -632,26 +1026,23 @@ Yêu em nhiều lắm! 💖
             }
             particles.geometry.attributes.position.needsUpdate = true;
 
-            // Tụ lại sau 300ms
             setTimeout(() => {
                 for (let i = 0; i < positions.length; i++) {
-                    positions[i] = originalPositions[i];
+                    positions[i] = original[i];
                 }
                 particles.geometry.attributes.position.needsUpdate = true;
             }, 300);
         }
 
-        // ==================== COUNTDOWN LOGIC ====================
-
+        // ==================== COUNTDOWN ====================
         function updateCountdown() {
             const now = new Date().getTime();
             const distance = NEW_YEAR_2026 - now;
 
             if (distance > 0) {
-                // Chưa tới năm mới
                 isNewYear = false;
-                countdown.classList.add('show');
-                newYearMessage.classList.remove('show');
+                countdownSection.classList.add('show');
+                newYearCelebration.classList.remove('show');
                 fireworksCanvas.classList.remove('show');
 
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
@@ -664,43 +1055,41 @@ Yêu em nhiều lắm! 💖
                 document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
                 document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
             } else {
-                // Đã qua năm mới
                 if (!isNewYear) {
-                    isNewYear = true;
-                    countdown.classList.remove('show');
-                    newYearMessage.classList.add('show');
-                    fireworksCanvas.classList.add('show');
-                    startFireworks();
+                    triggerNewYear();
                 }
             }
         }
 
-        // ==================== FIREWORKS (Pháo hoa) ====================
+        function triggerNewYear() {
+            isNewYear = true;
+            countdownSection.classList.remove('show');
+            newYearCelebration.classList.add('show');
+            fireworksCanvas.classList.add('show');
 
-        let fireworksContext;
-        let fireworksArray = [];
+            fireworkSound.play().catch(e => console.log('Audio blocked:', e));
+            startFireworks();
+        }
+
+        // ==================== FIREWORKS ====================
+        let ctx, fireworksArray = [];
 
         function startFireworks() {
             fireworksCanvas.width = window.innerWidth;
             fireworksCanvas.height = window.innerHeight;
-            fireworksContext = fireworksCanvas.getContext('2d');
+            ctx = fireworksCanvas.getContext('2d');
 
-            // Tạo pháo hoa mỗi 800ms
-            setInterval(createFirework, 800);
+            setInterval(createFirework, 600);
             animateFireworks();
         }
 
         function createFirework() {
-            const x = Math.random() * fireworksCanvas.width;
-            const y = fireworksCanvas.height;
-            const targetY = Math.random() * fireworksCanvas.height * 0.5;
-            const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
-
+            const colors = ['#ff0a78', '#9d4edd', '#00f5ff', '#ffd60a'];
             fireworksArray.push({
-                x: x,
-                y: y,
-                targetY: targetY,
-                color: color,
+                x: Math.random() * window.innerWidth,
+                y: window.innerHeight,
+                targetY: Math.random() * window.innerHeight * 0.4,
+                color: colors[Math.floor(Math.random() * colors.length)],
                 particles: [],
                 exploded: false
             });
@@ -708,94 +1097,87 @@ Yêu em nhiều lắm! 💖
 
         function animateFireworks() {
             requestAnimationFrame(animateFireworks);
-            fireworksContext.fillStyle = 'rgba(0, 0, 0, 0.1)';
-            fireworksContext.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.15)';
+            ctx.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
 
-            fireworksArray.forEach((firework, index) => {
-                if (!firework.exploded) {
-                    // Bay lên
-                    firework.y -= 5;
-                    fireworksContext.fillStyle = firework.color;
-                    fireworksContext.beginPath();
-                    fireworksContext.arc(firework.x, firework.y, 3, 0, Math.PI * 2);
-                    fireworksContext.fill();
+            fireworksArray.forEach((fw, i) => {
+                if (!fw.exploded) {
+                    fw.y -= 6;
+                    ctx.fillStyle = fw.color;
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = fw.color;
+                    ctx.beginPath();
+                    ctx.arc(fw.x, fw.y, 4, 0, Math.PI * 2);
+                    ctx.fill();
 
-                    // Nổ khi đạt độ cao
-                    if (firework.y <= firework.targetY) {
-                        firework.exploded = true;
-                        for (let i = 0; i < 50; i++) {
-                            firework.particles.push({
-                                x: firework.x,
-                                y: firework.y,
-                                vx: (Math.random() - 0.5) * 8,
-                                vy: (Math.random() - 0.5) * 8,
-                                alpha: 1
+                    if (fw.y <= fw.targetY) {
+                        fw.exploded = true;
+                        for (let j = 0; j < 80; j++) {
+                            fw.particles.push({
+                                x: fw.x,
+                                y: fw.y,
+                                vx: (Math.random() - 0.5) * 10,
+                                vy: (Math.random() - 0.5) * 10,
+                                alpha: 1,
+                                size: Math.random() * 3 + 1
                             });
                         }
                     }
                 } else {
-                    // Vẽ các hạt sau khi nổ
-                    firework.particles.forEach((particle, pIndex) => {
-                        particle.x += particle.vx;
-                        particle.y += particle.vy;
-                        particle.vy += 0.1; // Trọng lực
-                        particle.alpha -= 0.01;
+                    fw.particles.forEach((p, pi) => {
+                        p.x += p.vx;
+                        p.y += p.vy;
+                        p.vy += 0.15;
+                        p.alpha -= 0.012;
 
-                        fireworksContext.fillStyle = firework.color.replace(')', `, ${particle.alpha})`).replace('hsl', 'hsla');
-                        fireworksContext.beginPath();
-                        fireworksContext.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
-                        fireworksContext.fill();
+                        ctx.fillStyle = fw.color.replace(')', `, ${p.alpha})`).replace('rgb', 'rgba');
+                        ctx.shadowBlur = 10;
+                        ctx.shadowColor = fw.color;
+                        ctx.beginPath();
+                        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                        ctx.fill();
 
-                        if (particle.alpha <= 0) {
-                            firework.particles.splice(pIndex, 1);
+                        if (p.alpha <= 0) {
+                            fw.particles.splice(pi, 1);
                         }
                     });
 
-                    // Xóa pháo hoa khi hết hạt
-                    if (firework.particles.length === 0) {
-                        fireworksArray.splice(index, 1);
+                    if (fw.particles.length === 0) {
+                        fireworksArray.splice(i, 1);
                     }
                 }
             });
         }
 
+        // ==================== RECAP MODAL ====================
+        document.getElementById('btnRecap').addEventListener('click', () => {
+            recapModal.classList.add('show');
+            recapSound.play().catch(e => console.log('Audio blocked:', e));
+        });
+
+        document.getElementById('btnCloseRecap').addEventListener('click', () => {
+            recapModal.classList.remove('show');
+        });
+
+        recapModal.addEventListener('click', (e) => {
+            if (e.target === recapModal) {
+                recapModal.classList.remove('show');
+            }
+        });
+
         // ==================== MUSIC CONTROL ====================
-
-        function initMusicControl() {
-            musicControl.addEventListener('click', toggleMusic);
-        }
-
-        function toggleMusic() {
+        musicControl.addEventListener('click', () => {
             if (isMusicPlaying) {
                 bgMusic.pause();
-                musicIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+                musicControl.querySelector('svg').innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
             } else {
-                bgMusic.play().catch(e => console.log('Autoplay prevented:', e));
-                musicIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+                bgMusic.play().catch(e => console.log('Autoplay blocked:', e));
+                musicControl.querySelector('svg').innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
             }
             isMusicPlaying = !isMusicPlaying;
-        }
-
-        // ==================== MODAL ====================
-
-        function initModal() {
-            document.getElementById('btnShowMessage').addEventListener('click', () => {
-                messageModal.classList.add('show');
-            });
-
-            document.getElementById('btnCloseModal').addEventListener('click', () => {
-                messageModal.classList.remove('show');
-            });
-
-            messageModal.addEventListener('click', (e) => {
-                if (e.target === messageModal) {
-                    messageModal.classList.remove('show');
-                }
-            });
-        }
+        });
 
         // ==================== RESIZE ====================
-
         function onWindowResize() {
             camera.aspect = window.innerWidth / window.innerHeight;
             camera.updateProjectionMatrix();
@@ -807,23 +1189,22 @@ Yêu em nhiều lắm! 💖
             }
         }
 
-        // ==================== KHỞI ĐỘNG ====================
-
+        // ==================== INIT ====================
         function init() {
+            createStars();
             initThreeJS();
             animate();
-            requestGyroPermission();
-            useFallbackControls(); // Luôn bật fallback
-            initTouchInteraction();
-            initMusicControl();
-            initModal();
+            showGyroPrompt();
+            useFallbackControls();
 
-            // Cập nhật countdown mỗi giây
             setInterval(updateCountdown, 1000);
-            updateCountdown(); // Gọi ngay lần đầu
+            updateCountdown();
+
+            setTimeout(() => {
+                loadingScreen.classList.add('hidden');
+            }, 1500);
         }
 
-        // Chạy khi trang load xong
         window.addEventListener('load', init);
     </script>
 </body>
