@@ -213,9 +213,9 @@ function generateNameShape(text, count) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = [];
 
-    // Tăng khoảng cách lấy mẫu từ 3 lên 5 để giảm mật độ
-    for (let y = 0; y < canvas.height; y += 5) {
-        for (let x = 0; x < canvas.width; x += 5) {
+    // Tăng khoảng cách lấy mẫu từ 5 lên 7 để giảm mật độ hơn nữa
+    for (let y = 0; y < canvas.height; y += 7) {
+        for (let x = 0; x < canvas.width; x += 7) {
             const index = (y * canvas.width + x) * 4;
             const brightness = imageData.data[index];
 
