@@ -213,15 +213,16 @@ function generateNameShape(text, count) {
     const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
     const pixels = [];
 
-    for (let y = 0; y < canvas.height; y += 3) {
-        for (let x = 0; x < canvas.width; x += 3) {
+    // Tăng khoảng cách lấy mẫu từ 3 lên 5 để giảm mật độ
+    for (let y = 0; y < canvas.height; y += 5) {
+        for (let x = 0; x < canvas.width; x += 5) {
             const index = (y * canvas.width + x) * 4;
             const brightness = imageData.data[index];
 
             if (brightness > 128) {
                 // Responsive: điều chỉnh theo màn hình
                 const isMobile = window.innerWidth < 768;
-                const scale = isMobile ? 0.25 : 0.45; // Mobile: 0.25 (nhỏ hơn), Desktop: 0.45
+                const scale = isMobile ? 0.35 : 0.55; // Mobile: 0.35, Desktop: 0.55 - TO HƠN
 
                 pixels.push({
                     x: (x - canvas.width / 2) * scale,
@@ -232,13 +233,27 @@ function generateNameShape(text, count) {
         }
     }
 
-    // Sample to match particle count
+    // Chỉ lấy số lượng particles cần thiết, không sample
     const sampledPositions = [];
-    const step = Math.max(1, Math.floor(pixels.length / count));
 
-    for (let i = 0; i < count; i++) {
-        const index = (i * step) % pixels.length;
-        sampledPositions.push(pixels[index] || pixels[0]);
+    // Nếu có nhiều pixels hơn particles, lấy đều
+    if (pixels.length > count) {
+        const step = Math.floor(pixels.length / count);
+        for (let i = 0; i < count && i * step < pixels.length; i++) {
+            sampledPositions.push(pixels[i * step]);
+        }
+    } else {
+        // Nếu ít hơn, dùng hết
+        sampledPositions.push(...pixels);
+    }
+
+    // Đảm bảo đủ số lượng
+    while (sampledPositions.length < count) {
+        sampledPositions.push({
+            x: 0,
+            y: 0,
+            z: 0
+        });
     }
 
     return sampledPositions;
