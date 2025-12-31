@@ -70,12 +70,6 @@ function init() {
     document.addEventListener('click', onMouseClick);
     window.addEventListener('resize', onWindowResize);
 
-    // Test button
-    document.getElementById('test-fireworks-btn').addEventListener('click', function(e) {
-        e.stopPropagation(); // Ngăn không trigger onMouseClick
-        triggerNewYear();
-    });
-
     // Start countdown
     startCountdown();
 
@@ -300,9 +294,13 @@ function onMouseClick(event) {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Hiệu ứng tim đập
+    // Hiệu ứng tim đập - MẠNH HƠN VÀ NHIỀU HIỆU ỨNG HƠN
     if (currentMode === 'heart') {
-        heartBeatScale = 1 + Math.sin(Date.now() * 0.003) * 0.1; // Đập từ 0.9 đến 1.1
+        // Đập mạnh hơn: từ 0.7 đến 1.3 (thay vì 0.9 đến 1.1)
+        const baseScale = 1 + Math.sin(Date.now() * 0.005) * 0.3;
+        // Thêm hiệu ứng rung nhẹ
+        const pulseEffect = Math.sin(Date.now() * 0.02) * 0.05;
+        heartBeatScale = baseScale + pulseEffect;
     } else {
         heartBeatScale = 1;
     }
@@ -326,6 +324,19 @@ function animate() {
                     // Áp dụng hiệu ứng tim đập
                     if (currentMode === 'heart') {
                         particle.scale.set(heartBeatScale, heartBeatScale, heartBeatScale);
+
+                        // Thêm hiệu ứng màu sắc đỏ/hồng khi đập
+                        const colorIntensity = (heartBeatScale - 0.7) / 0.6; // 0 đến 1
+                        particle.material.color.setRGB(
+                            1, // Red luôn max
+                            0.3 + colorIntensity * 0.4, // Green dao động
+                            0.3 + colorIntensity * 0.4  // Blue dao động
+                        );
+                        particle.material.opacity = 0.8 + colorIntensity * 0.2;
+                    } else {
+                        particle.scale.set(1, 1, 1);
+                        // Reset màu về ban đầu
+                        particle.material.opacity = 0.8;
                     }
                 }
             }
