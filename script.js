@@ -309,21 +309,30 @@ function animate() {
 
     particles.forEach((particle, index) => {
         if (isForming) {
-            // Move to formation
-            const targetPos = currentMode === 'heart' ? heartPositions[index] : namePositions[index];
+            // Nếu là ảnh, ẩn đi khi tạo hình trái tim/chữ
+            if (particle.userData.isPhotoSprite) {
+                particle.visible = false;
+            } else {
+                // Chỉ các ngôi sao mới di chuyển tạo hình
+                particle.visible = true;
+                const targetPos = currentMode === 'heart' ? heartPositions[index] : namePositions[index];
 
-            // Kiểm tra nếu có targetPos
-            if (targetPos) {
-                particle.position.x += (targetPos.x - particle.position.x) * 0.05;
-                particle.position.y += (targetPos.y - particle.position.y) * 0.05;
-                particle.position.z += (targetPos.z - particle.position.z) * 0.05;
+                // Kiểm tra nếu có targetPos
+                if (targetPos) {
+                    particle.position.x += (targetPos.x - particle.position.x) * 0.05;
+                    particle.position.y += (targetPos.y - particle.position.y) * 0.05;
+                    particle.position.z += (targetPos.z - particle.position.z) * 0.05;
 
-                // Áp dụng hiệu ứng tim đập
-                if (currentMode === 'heart') {
-                    particle.scale.set(heartBeatScale, heartBeatScale, heartBeatScale);
+                    // Áp dụng hiệu ứng tim đập
+                    if (currentMode === 'heart') {
+                        particle.scale.set(heartBeatScale, heartBeatScale, heartBeatScale);
+                    }
                 }
             }
         } else {
+            // Ở chế độ vũ trụ, hiện tất cả (cả ảnh và ngôi sao)
+            particle.visible = true;
+
             // Float around randomly
             particle.position.x += particle.userData.velocity.x;
             particle.position.y += particle.userData.velocity.y;
