@@ -88,8 +88,12 @@ function createParticles() {
 
         // Assign photo if available - TẠO HÌNH ẢNH THẬT
         if (i < CONFIG.photos.length) {
+            // Responsive: ảnh nhỏ hơn trên mobile
+            const isMobile = window.innerWidth < 768;
+            const photoSize = isMobile ? 25 : 40; // Mobile: 25, Desktop: 40
+
             // Tạo plane geometry để hiển thị ảnh
-            const geometry = new THREE.PlaneGeometry(40, 40);
+            const geometry = new THREE.PlaneGeometry(photoSize, photoSize);
 
             // Load texture từ ảnh
             const texture = textureLoader.load(
@@ -159,7 +163,9 @@ function createParticles() {
 
 function generateHeartShape(count) {
     const positions = [];
-    const scale = 30; // Thu nhỏ từ 80 xuống 30
+    // Responsive: nhỏ hơn trên mobile
+    const isMobile = window.innerWidth < 768;
+    const scale = isMobile ? 15 : 25; // Mobile: 15, Desktop: 25
 
     for (let i = 0; i < count; i++) {
         const t = (i / count) * Math.PI * 2;
@@ -213,9 +219,13 @@ function generateNameShape(text, count) {
             const brightness = imageData.data[index];
 
             if (brightness > 128) {
+                // Responsive: nhỏ hơn trên mobile
+                const isMobile = window.innerWidth < 768;
+                const scale = isMobile ? 0.3 : 0.45; // Mobile: 0.3, Desktop: 0.45
+
                 pixels.push({
-                    x: (x - canvas.width / 2) * 0.5, // Phóng to từ 0.3 lên 0.5
-                    y: -(y - canvas.height / 2) * 0.5, // Phóng to từ 0.3 lên 0.5
+                    x: (x - canvas.width / 2) * scale,
+                    y: -(y - canvas.height / 2) * scale,
                     z: (Math.random() - 0.5) * 30
                 });
             }
@@ -379,6 +389,11 @@ function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
+
+    // Regenerate shapes với kích thước mới
+    heartPositions = generateHeartShape(CONFIG.particleCount);
+    namePositions = generateNameShape(CONFIG.targetName, CONFIG.particleCount);
+    console.log('Đã resize - Tạo lại shapes cho màn hình mới');
 }
 
 // Countdown Timer
