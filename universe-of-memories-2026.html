@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Vũ Trụ Ký Ức - Happy New Year 2026</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==================== RESET & BASE ==================== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            overflow: hidden;
+            background: #000000;
+            color: #ffffff;
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        /* ==================== CANVAS 3D ==================== */
+        #canvas3d {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            touch-action: none;
+        }
+
+        /* ==================== UI OVERLAY ==================== */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* ==================== COUNTDOWN ==================== */
+        #countdown {
+            font-size: 18px;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-align: center;
+            text-shadow: 0 0 20px rgba(255, 105, 180, 0.8),
+                         0 0 40px rgba(138, 43, 226, 0.6);
+            margin-top: 40vh;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        #countdown.show {
+            opacity: 1;
+        }
+
+        #countdown .time-unit {
+            display: inline-block;
+            margin: 0 8px;
+        }
+
+        #countdown .number {
+            font-size: 32px;
+            font-weight: 600;
+            color: #ff69b4;
+        }
+
+        #countdown .label {
+            font-size: 14px;
+            color: #ba7bff;
+            display: block;
+        }
+
+        /* ==================== NEW YEAR MESSAGE ==================== */
+        #newYearMessage {
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.8s ease;
+            margin-top: 20vh;
+        }
+
+        #newYearMessage.show {
+            opacity: 1;
+        }
+
+        #newYearMessage h1 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 42px;
+            font-weight: 700;
+            background: linear-gradient(45deg, #ff69b4, #ba7bff, #ff1493);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 105, 180, 0.5);
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        #btnShowMessage {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 16px;
+            font-weight: 600;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #ff69b4, #8a2be2);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            cursor: pointer;
+            box-shadow: 0 5px 25px rgba(255, 105, 180, 0.5);
+            transition: all 0.3s ease;
+            pointer-events: auto;
+        }
+
+        #btnShowMessage:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 35px rgba(255, 105, 180, 0.7);
+        }
+
+        #btnShowMessage:active {
+            transform: translateY(-1px);
+        }
+
+        /* ==================== MESSAGE MODAL ==================== */
+        #messageModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            pointer-events: auto;
+        }
+
+        #messageModal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, rgba(138, 43, 226, 0.3), rgba(255, 105, 180, 0.3));
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 105, 180, 0.5);
+            border-radius: 20px;
+            padding: 40px 30px;
+            max-width: 90%;
+            max-height: 80%;
+            overflow-y: auto;
+            box-shadow: 0 10px 50px rgba(255, 105, 180, 0.4);
+        }
+
+        .modal-content h2 {
+            font-family: 'Dancing Script', cursive;
+            font-size: 32px;
+            margin-bottom: 20px;
+            color: #ff69b4;
+            text-align: center;
+        }
+
+        .modal-content p {
+            font-size: 16px;
+            line-height: 1.8;
+            color: #ffffff;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        #btnCloseModal {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 14px;
+            padding: 10px 30px;
+            background: rgba(255, 105, 180, 0.3);
+            border: 1px solid #ff69b4;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+            display: block;
+            margin: 0 auto;
+            transition: all 0.3s ease;
+        }
+
+        #btnCloseModal:hover {
+            background: rgba(255, 105, 180, 0.5);
+        }
+
+        /* ==================== MUSIC CONTROL ==================== */
+        #musicControl {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 50;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 105, 180, 0.3);
+            border: 2px solid #ff69b4;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(255, 105, 180, 0.4);
+        }
+
+        #musicControl:hover {
+            background: rgba(255, 105, 180, 0.5);
+            transform: scale(1.1);
+        }
+
+        #musicControl svg {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        /* ==================== FIREWORKS CANVAS ==================== */
+        #fireworksCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            display: none;
+        }
+
+        #fireworksCanvas.show {
+            display: block;
+        }
+
+        /* ==================== RESPONSIVE ==================== */
+        @media (max-width: 600px) {
+            #countdown .number {
+                font-size: 24px;
+            }
+
+            #countdown .label {
+                font-size: 12px;
+            }
+
+            #newYearMessage h1 {
+                font-size: 32px;
+            }
+
+            #btnShowMessage {
+                font-size: 14px;
+                padding: 12px 30px;
+            }
+
+            .modal-content {
+                padding: 30px 20px;
+            }
+
+            .modal-content h2 {
+                font-size: 26px;
+            }
+
+            .modal-content p {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Canvas cho Three.js -->
+    <canvas id="canvas3d"></canvas>
+
+    <!-- Canvas cho pháo hoa -->
+    <canvas id="fireworksCanvas"></canvas>
+
+    <!-- UI Overlay -->
+    <div class="overlay">
+        <!-- Đồng hồ đếm ngược (hiện khi chưa tới năm mới) -->
+        <div id="countdown">
+            <div class="time-unit">
+                <span class="number" id="days">00</span>
+                <span class="label">ngày</span>
+            </div>
+            <div class="time-unit">
+                <span class="number" id="hours">00</span>
+                <span class="label">giờ</span>
+            </div>
+            <div class="time-unit">
+                <span class="number" id="minutes">00</span>
+                <span class="label">phút</span>
+            </div>
+            <div class="time-unit">
+                <span class="number" id="seconds">00</span>
+                <span class="label">giây</span>
+            </div>
+        </div>
+
+        <!-- Thông điệp năm mới (hiện khi đã qua năm mới) -->
+        <div id="newYearMessage">
+            <h1>Happy New Year 2026,<br>My Love ❤️</h1>
+            <button id="btnShowMessage">Xem lời chúc</button>
+        </div>
+    </div>
+
+    <!-- Modal lời chúc -->
+    <div id="messageModal">
+        <div class="modal-content">
+            <h2>Lời chúc năm mới 2026 💝</h2>
+            <p id="messageText">
+                <!-- Thay lời chúc của bạn ở đây -->
+                Em yêu ơi,<br><br>
+                Năm mới 2026 đã đến rồi đó! Anh muốn gửi đến em những điều tốt đẹp nhất,<br>
+                những nụ cười rạng rỡ nhất, và tình yêu thương vô tận.<br><br>
+                Cảm ơn em đã luôn ở bên anh, làm cuộc đời anh thêm ý nghĩa.<br>
+                Chúc em luôn khỏe mạnh, hạnh phúc và thành công trong mọi điều.<br><br>
+                Yêu em nhiều lắm! 💖<br>
+                - Anh của em -
+            </p>
+            <button id="btnCloseModal">Đóng</button>
+        </div>
+    </div>
+
+    <!-- Nút điều khiển nhạc -->
+    <div id="musicControl" title="Bật/Tắt nhạc">
+        <svg id="musicIcon" viewBox="0 0 24 24">
+            <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>
+        </svg>
+    </div>
+
+    <!-- Audio (thêm link nhạc của bạn vào src) -->
+    <audio id="bgMusic" loop>
+        <!-- Thay link nhạc nền của bạn ở đây -->
+        <source src="" type="audio/mpeg">
+    </audio>
+
+    <!-- Three.js từ CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <script>
+        // ==================== BIẾN CẤU HÌNH (Có thể chỉnh sửa) ====================
+
+        // Lời chúc (có thể thay đổi nội dung trong HTML phía trên hoặc qua JS)
+        const MESSAGE = `Em yêu ơi,
+
+Năm mới 2026 đã đến rồi đó! Anh muốn gửi đến em những điều tốt đẹp nhất,
+những nụ cười rạng rỡ nhất, và tình yêu thương vô tận.
+
+Cảm ơn em đã luôn ở bên anh, làm cuộc đời anh thêm ý nghĩa.
+Chúc em luôn khỏe mạnh, hạnh phúc và thành công trong mọi điều.
+
+Yêu em nhiều lắm! 💖
+- Anh của em -`;
+
+        // Link ảnh (dự phòng cho texture particles nếu cần)
+        const IMG_URL = ''; // Để trống hoặc thay link ảnh texture
+
+        // Số lượng hạt (giảm xuống cho mobile, tăng lên cho desktop mạnh hơn)
+        const PARTICLE_COUNT = 1800; // Chỉnh ở đây để tăng/giảm số hạt
+
+        // Tốc độ xoay tự động (khi không có gyroscope)
+        const AUTO_ROTATION_SPEED = 0.001; // Chỉnh ở đây để điều chỉnh tốc độ xoay
+
+        // Mốc thời gian năm mới
+        const NEW_YEAR_2026 = new Date('2026-01-01T00:00:00').getTime();
+
+        // ==================== BIẾN TOÀN CỤC ====================
+
+        let scene, camera, renderer, particles;
+        let gyroPermissionGranted = false;
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        let currentRotationX = 0, currentRotationY = 0;
+        let isMusicPlaying = false;
+        let isNewYear = false;
+
+        // Elements
+        const canvas3d = document.getElementById('canvas3d');
+        const countdown = document.getElementById('countdown');
+        const newYearMessage = document.getElementById('newYearMessage');
+        const messageModal = document.getElementById('messageModal');
+        const musicControl = document.getElementById('musicControl');
+        const bgMusic = document.getElementById('bgMusic');
+        const fireworksCanvas = document.getElementById('fireworksCanvas');
+
+        // ==================== KHỞI TẠO THREE.JS ====================
+
+        function initThreeJS() {
+            // Scene
+            scene = new THREE.Scene();
+
+            // Camera (Perspective cho cảm giác 3D)
+            camera = new THREE.PerspectiveCamera(
+                75,
+                window.innerWidth / window.innerHeight,
+                0.1,
+                1000
+            );
+            camera.position.z = 50;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({
+                canvas: canvas3d,
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Giới hạn cho mobile
+
+            // Tạo hạt hình trái tim
+            createHeartParticles();
+
+            // Tạo sao nền
+            createStarfield();
+
+            // Xử lý resize
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // ==================== TẠO HẠT HÌNH TRÁI TIM ====================
+
+        function createHeartParticles() {
+            const geometry = new THREE.BufferGeometry();
+            const positions = [];
+            const colors = [];
+
+            // Tạo điểm theo công thức toán học hình trái tim 3D
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                // Tham số ngẫu nhiên
+                const t = Math.random() * Math.PI * 2;
+                const u = Math.random() * Math.PI * 2;
+
+                // Công thức hình trái tim 3D (Heart Surface)
+                const scale = 5; // Kích thước trái tim
+                const x = scale * (16 * Math.pow(Math.sin(t), 3));
+                const y = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                const z = scale * Math.sin(u) * 3; // Thêm chiều sâu
+
+                // Thêm nhiễu ngẫu nhiên để tạo đám mây
+                const noise = 0.5;
+                positions.push(
+                    x + (Math.random() - 0.5) * noise,
+                    y + (Math.random() - 0.5) * noise,
+                    z + (Math.random() - 0.5) * noise
+                );
+
+                // Màu hồng pastel và tím neon
+                const color = new THREE.Color();
+                if (Math.random() > 0.5) {
+                    color.setHSL(0.92, 1.0, 0.7); // Hồng pastel
+                } else {
+                    color.setHSL(0.78, 1.0, 0.6); // Tím neon
+                }
+                colors.push(color.r, color.g, color.b);
+            }
+
+            geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+            geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+
+            // Material
+            const material = new THREE.PointsMaterial({
+                size: 0.3, // Kích thước hạt
+                vertexColors: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending,
+                depthWrite: false
+            });
+
+            particles = new THREE.Points(geometry, material);
+            scene.add(particles);
+        }
+
+        // ==================== TẠO SAO NỀN ====================
+
+        function createStarfield() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starPositions = [];
+
+            for (let i = 0; i < 500; i++) {
+                starPositions.push(
+                    (Math.random() - 0.5) * 200,
+                    (Math.random() - 0.5) * 200,
+                    (Math.random() - 0.5) * 200
+                );
+            }
+
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starPositions, 3));
+
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.1,
+                transparent: true,
+                opacity: 0.6
+            });
+
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+
+        // ==================== ANIMATION LOOP ====================
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Hiệu ứng thở (floating)
+            const time = Date.now() * 0.001;
+            if (particles) {
+                particles.rotation.y = currentRotationY;
+                particles.rotation.x = currentRotationX;
+
+                // Chuyển động nhẹ lên xuống
+                particles.position.y = Math.sin(time * 0.5) * 0.5;
+
+                // Scale nhẹ (thở)
+                const breathScale = 1 + Math.sin(time * 0.8) * 0.05;
+                particles.scale.set(breathScale, breathScale, breathScale);
+            }
+
+            // Làm mượt rotation (easing)
+            currentRotationX += (targetRotationX - currentRotationX) * 0.05;
+            currentRotationY += (targetRotationY - currentRotationY) * 0.05;
+
+            // Xoay tự động nhẹ khi không tương tác
+            if (!gyroPermissionGranted && mouseX === 0 && mouseY === 0) {
+                targetRotationY += AUTO_ROTATION_SPEED;
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // ==================== GYROSCOPE (Cảm biến con quay hồi chuyển) ====================
+
+        function requestGyroPermission() {
+            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+                // iOS 13+ cần xin phép
+                DeviceOrientationEvent.requestPermission()
+                    .then(permissionState => {
+                        if (permissionState === 'granted') {
+                            enableGyroscope();
+                        } else {
+                            console.log('Gyroscope permission denied');
+                            useFallbackControls();
+                        }
+                    })
+                    .catch(console.error);
+            } else if (window.DeviceOrientationEvent) {
+                // Android và trình duyệt khác
+                enableGyroscope();
+            } else {
+                // Không hỗ trợ gyroscope
+                useFallbackControls();
+            }
+        }
+
+        function enableGyroscope() {
+            gyroPermissionGranted = true;
+            window.addEventListener('deviceorientation', handleOrientation);
+        }
+
+        function handleOrientation(event) {
+            // Beta: nghiêng trước/sau (-180 đến 180)
+            // Gamma: nghiêng trái/phải (-90 đến 90)
+            const beta = event.beta; // Trước/sau
+            const gamma = event.gamma; // Trái/phải
+
+            // Chuyển đổi sang radian và giới hạn
+            targetRotationX = (beta / 180) * Math.PI * 0.3;
+            targetRotationY = (gamma / 90) * Math.PI * 0.3;
+        }
+
+        // ==================== FALLBACK CONTROLS (Chuột/Touch) ====================
+
+        function useFallbackControls() {
+            // Mouse
+            document.addEventListener('mousemove', (event) => {
+                mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+                mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+                targetRotationY = mouseX * Math.PI * 0.3;
+                targetRotationX = mouseY * Math.PI * 0.3;
+            });
+
+            // Touch
+            document.addEventListener('touchmove', (event) => {
+                if (event.touches.length > 0) {
+                    const touch = event.touches[0];
+                    mouseX = (touch.clientX / window.innerWidth) * 2 - 1;
+                    mouseY = -(touch.clientY / window.innerHeight) * 2 + 1;
+                    targetRotationY = mouseX * Math.PI * 0.3;
+                    targetRotationX = mouseY * Math.PI * 0.3;
+                }
+            });
+        }
+
+        // ==================== TOUCH INTERACTION (Tap để tạo hiệu ứng pulse) ====================
+
+        function initTouchInteraction() {
+            canvas3d.addEventListener('click', pulseEffect);
+            canvas3d.addEventListener('touchstart', pulseEffect);
+        }
+
+        function pulseEffect() {
+            if (!particles) return;
+
+            // Tạo hiệu ứng bung ra rồi tụ lại
+            const positions = particles.geometry.attributes.position.array;
+            const originalPositions = positions.slice();
+
+            // Bung ra
+            for (let i = 0; i < positions.length; i += 3) {
+                positions[i] *= 1.5;
+                positions[i + 1] *= 1.5;
+                positions[i + 2] *= 1.5;
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+
+            // Tụ lại sau 300ms
+            setTimeout(() => {
+                for (let i = 0; i < positions.length; i++) {
+                    positions[i] = originalPositions[i];
+                }
+                particles.geometry.attributes.position.needsUpdate = true;
+            }, 300);
+        }
+
+        // ==================== COUNTDOWN LOGIC ====================
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = NEW_YEAR_2026 - now;
+
+            if (distance > 0) {
+                // Chưa tới năm mới
+                isNewYear = false;
+                countdown.classList.add('show');
+                newYearMessage.classList.remove('show');
+                fireworksCanvas.classList.remove('show');
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('days').textContent = String(days).padStart(2, '0');
+                document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+                document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+                document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            } else {
+                // Đã qua năm mới
+                if (!isNewYear) {
+                    isNewYear = true;
+                    countdown.classList.remove('show');
+                    newYearMessage.classList.add('show');
+                    fireworksCanvas.classList.add('show');
+                    startFireworks();
+                }
+            }
+        }
+
+        // ==================== FIREWORKS (Pháo hoa) ====================
+
+        let fireworksContext;
+        let fireworksArray = [];
+
+        function startFireworks() {
+            fireworksCanvas.width = window.innerWidth;
+            fireworksCanvas.height = window.innerHeight;
+            fireworksContext = fireworksCanvas.getContext('2d');
+
+            // Tạo pháo hoa mỗi 800ms
+            setInterval(createFirework, 800);
+            animateFireworks();
+        }
+
+        function createFirework() {
+            const x = Math.random() * fireworksCanvas.width;
+            const y = fireworksCanvas.height;
+            const targetY = Math.random() * fireworksCanvas.height * 0.5;
+            const color = `hsl(${Math.random() * 360}, 100%, 60%)`;
+
+            fireworksArray.push({
+                x: x,
+                y: y,
+                targetY: targetY,
+                color: color,
+                particles: [],
+                exploded: false
+            });
+        }
+
+        function animateFireworks() {
+            requestAnimationFrame(animateFireworks);
+            fireworksContext.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            fireworksContext.fillRect(0, 0, fireworksCanvas.width, fireworksCanvas.height);
+
+            fireworksArray.forEach((firework, index) => {
+                if (!firework.exploded) {
+                    // Bay lên
+                    firework.y -= 5;
+                    fireworksContext.fillStyle = firework.color;
+                    fireworksContext.beginPath();
+                    fireworksContext.arc(firework.x, firework.y, 3, 0, Math.PI * 2);
+                    fireworksContext.fill();
+
+                    // Nổ khi đạt độ cao
+                    if (firework.y <= firework.targetY) {
+                        firework.exploded = true;
+                        for (let i = 0; i < 50; i++) {
+                            firework.particles.push({
+                                x: firework.x,
+                                y: firework.y,
+                                vx: (Math.random() - 0.5) * 8,
+                                vy: (Math.random() - 0.5) * 8,
+                                alpha: 1
+                            });
+                        }
+                    }
+                } else {
+                    // Vẽ các hạt sau khi nổ
+                    firework.particles.forEach((particle, pIndex) => {
+                        particle.x += particle.vx;
+                        particle.y += particle.vy;
+                        particle.vy += 0.1; // Trọng lực
+                        particle.alpha -= 0.01;
+
+                        fireworksContext.fillStyle = firework.color.replace(')', `, ${particle.alpha})`).replace('hsl', 'hsla');
+                        fireworksContext.beginPath();
+                        fireworksContext.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
+                        fireworksContext.fill();
+
+                        if (particle.alpha <= 0) {
+                            firework.particles.splice(pIndex, 1);
+                        }
+                    });
+
+                    // Xóa pháo hoa khi hết hạt
+                    if (firework.particles.length === 0) {
+                        fireworksArray.splice(index, 1);
+                    }
+                }
+            });
+        }
+
+        // ==================== MUSIC CONTROL ====================
+
+        function initMusicControl() {
+            musicControl.addEventListener('click', toggleMusic);
+        }
+
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                musicIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/>';
+            } else {
+                bgMusic.play().catch(e => console.log('Autoplay prevented:', e));
+                musicIcon.innerHTML = '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>';
+            }
+            isMusicPlaying = !isMusicPlaying;
+        }
+
+        // ==================== MODAL ====================
+
+        function initModal() {
+            document.getElementById('btnShowMessage').addEventListener('click', () => {
+                messageModal.classList.add('show');
+            });
+
+            document.getElementById('btnCloseModal').addEventListener('click', () => {
+                messageModal.classList.remove('show');
+            });
+
+            messageModal.addEventListener('click', (e) => {
+                if (e.target === messageModal) {
+                    messageModal.classList.remove('show');
+                }
+            });
+        }
+
+        // ==================== RESIZE ====================
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+
+            if (fireworksCanvas.classList.contains('show')) {
+                fireworksCanvas.width = window.innerWidth;
+                fireworksCanvas.height = window.innerHeight;
+            }
+        }
+
+        // ==================== KHỞI ĐỘNG ====================
+
+        function init() {
+            initThreeJS();
+            animate();
+            requestGyroPermission();
+            useFallbackControls(); // Luôn bật fallback
+            initTouchInteraction();
+            initMusicControl();
+            initModal();
+
+            // Cập nhật countdown mỗi giây
+            setInterval(updateCountdown, 1000);
+            updateCountdown(); // Gọi ngay lần đầu
+        }
+
+        // Chạy khi trang load xong
+        window.addEventListener('load', init);
+    </script>
+</body>
+</html>
