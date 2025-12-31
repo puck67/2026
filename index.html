@@ -32,7 +32,7 @@
         body {
             font-family: 'Raleway', sans-serif;
             overflow: hidden;
-            background: radial-gradient(ellipse at bottom, #1b0a2a 0%, #000000 100%);
+            background: radial-gradient(ellipse at bottom, #1b0a2a 0%, #0a0014 50%, #000000 100%);
             color: white;
             width: 100vw;
             height: 100vh;
@@ -196,12 +196,15 @@
             text-align: center;
             opacity: 0;
             transition: opacity 0.8s ease;
-            margin-top: 30vh;
+            margin-top: 20vh;
+            padding: 40px 20px;
+            background: radial-gradient(circle at center, rgba(255, 10, 120, 0.05) 0%, transparent 70%);
+            border-radius: 30px;
         }
 
         .countdown-section.show {
             opacity: 1;
-            animation: pulseGlow 2s infinite ease-in-out;
+            animation: pulseGlow 3s infinite ease-in-out;
         }
 
         @keyframes pulseGlow {
@@ -226,14 +229,32 @@
         }
 
         .time-box {
-            background: linear-gradient(135deg, rgba(255, 10, 120, 0.1), rgba(157, 78, 221, 0.1));
-            border: 2px solid rgba(255, 10, 120, 0.3);
+            background: linear-gradient(135deg, rgba(255, 10, 120, 0.15), rgba(157, 78, 221, 0.15));
+            border: 2px solid rgba(255, 10, 120, 0.4);
             border-radius: 20px;
             padding: clamp(15px, 3vw, 25px);
             min-width: clamp(70px, 15vw, 100px);
-            backdrop-filter: blur(10px);
-            box-shadow: var(--glow-pink);
+            backdrop-filter: blur(15px);
+            box-shadow: 0 8px 32px rgba(255, 10, 120, 0.3), inset 0 0 20px rgba(255, 10, 120, 0.1);
             animation: borderPulse 3s infinite;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .time-box::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
         }
 
         @keyframes borderPulse {
@@ -318,13 +339,22 @@
         .recap-modal {
             position: fixed;
             inset: 0;
-            background: #000;
+            background: radial-gradient(circle at 50% 50%, rgba(157, 78, 221, 0.2) 0%, #000 100%);
             z-index: 100;
             display: none;
             pointer-events: auto;
+            overflow-y: auto;
         }
 
-        .recap-modal.show { display: block; }
+        .recap-modal.show {
+            display: block;
+            animation: modalFadeIn 0.6s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
 
         .light-beam {
             position: absolute;
@@ -373,19 +403,26 @@
             opacity: 0;
             transform: scale(0.8) translateY(50px);
             animation: memoryReveal 0.8s ease forwards;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
         .memory-card:nth-child(1) { animation-delay: 0.5s; }
-        .memory-card:nth-child(2) { animation-delay: 1s; }
-        .memory-card:nth-child(3) { animation-delay: 1.5s; }
-        .memory-card:nth-child(4) { animation-delay: 2s; }
-        .memory-card:nth-child(5) { animation-delay: 2.5s; }
+        .memory-card:nth-child(2) { animation-delay: 0.7s; }
+        .memory-card:nth-child(3) { animation-delay: 0.9s; }
+        .memory-card:nth-child(4) { animation-delay: 1.1s; }
+        .memory-card:nth-child(5) { animation-delay: 1.3s; }
 
         @keyframes memoryReveal {
             to {
                 opacity: 1;
                 transform: scale(1) translateY(0);
             }
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05) translateY(-10px);
+            box-shadow: 0 20px 60px rgba(255, 10, 120, 0.6), 0 0 40px var(--primary-purple);
         }
 
         .memory-card img {
@@ -398,7 +435,37 @@
 
         .memory-card:hover img {
             filter: brightness(1) contrast(1.2);
-            transform: scale(1.1);
+            transform: scale(1.05);
+        }
+
+        .memory-card.expanded {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1.5) !important;
+            width: min(90vw, 600px);
+            height: min(90vh, 600px);
+            z-index: 1000;
+            animation: none;
+        }
+
+        .memory-card.expanded img {
+            transform: scale(1);
+        }
+
+        .memory-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 999;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        .memory-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
         }
 
         .memory-placeholder {
@@ -419,11 +486,13 @@
             left: 0;
             width: 100%;
             padding: 20px;
-            background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent);
+            background: linear-gradient(to top, rgba(0, 0, 0, 0.95), rgba(0, 0, 0, 0.5), transparent);
             font-family: 'Cormorant Garamond', serif;
             font-size: clamp(16px, 3vw, 22px);
             color: var(--accent-gold);
             text-align: center;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
         }
 
         .btn-close-recap {
@@ -693,6 +762,9 @@
         </div>
     </div>
 
+    <!-- Memory Overlay -->
+    <div class="memory-overlay" id="memoryOverlay"></div>
+
     <!-- Recap Modal -->
     <div class="recap-modal" id="recapModal">
         <div class="light-beam"></div>
@@ -777,6 +849,12 @@
         const PARTICLE_COUNT = 2000;
         const AUTO_ROTATION_SPEED = 0.001;
 
+        // Particle states
+        let particleMode = 'scattered'; // 'scattered' or 'heart'
+        let transitionProgress = 0;
+        let scatteredPositions = [];
+        let heartPositions = [];
+
         // ==================== GLOBAL VARIABLES ====================
         let scene, camera, renderer, particles;
         let gyroEnabled = false;
@@ -858,20 +936,30 @@
             const colors = [];
 
             for (let i = 0; i < PARTICLE_COUNT; i++) {
+                // Scattered positions (random in space)
+                const scatteredX = (Math.random() - 0.5) * 100;
+                const scatteredY = (Math.random() - 0.5) * 100;
+                const scatteredZ = (Math.random() - 0.5) * 100;
+                scatteredPositions.push(scatteredX, scatteredY, scatteredZ);
+
+                // Heart positions (smaller scale)
                 const t = Math.random() * Math.PI * 2;
                 const u = Math.random() * Math.PI * 2;
 
-                const scale = 5;
-                const x = scale * (16 * Math.pow(Math.sin(t), 3));
-                const y = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-                const z = scale * Math.sin(u) * 3;
+                const scale = 3; // Reduced from 5 to 3
+                const heartX = scale * (16 * Math.pow(Math.sin(t), 3));
+                const heartY = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+                const heartZ = scale * Math.sin(u) * 3;
 
-                const noise = 0.5;
-                positions.push(
-                    x + (Math.random() - 0.5) * noise,
-                    y + (Math.random() - 0.5) * noise,
-                    z + (Math.random() - 0.5) * noise
+                const noise = 0.3;
+                heartPositions.push(
+                    heartX + (Math.random() - 0.5) * noise,
+                    heartY + (Math.random() - 0.5) * noise,
+                    heartZ + (Math.random() - 0.5) * noise
                 );
+
+                // Start with scattered positions
+                positions.push(scatteredX, scatteredY, scatteredZ);
 
                 const color = new THREE.Color();
                 const hue = Math.random() > 0.5 ? 0.92 : 0.78;
@@ -883,16 +971,22 @@
             geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
 
             const material = new THREE.PointsMaterial({
-                size: 0.35,
+                size: 0.4,
                 vertexColors: true,
                 transparent: true,
-                opacity: 0.9,
+                opacity: 0.85,
                 blending: THREE.AdditiveBlending,
-                depthWrite: false
+                depthWrite: false,
+                sizeAttenuation: true
             });
 
             particles = new THREE.Points(geometry, material);
             scene.add(particles);
+
+            // Auto transition to heart shape after 2 seconds
+            setTimeout(() => {
+                transitionToHeart();
+            }, 2000);
         }
 
         function createStarfield() {
@@ -920,6 +1014,27 @@
             scene.add(stars);
         }
 
+        function transitionToHeart() {
+            if (particleMode === 'heart') return;
+            particleMode = 'heart';
+
+            const animateTransition = () => {
+                if (transitionProgress < 1) {
+                    transitionProgress += 0.02;
+
+                    const positions = particles.geometry.attributes.position.array;
+                    for (let i = 0; i < positions.length; i += 3) {
+                        positions[i] = scatteredPositions[i] + (heartPositions[i] - scatteredPositions[i]) * transitionProgress;
+                        positions[i + 1] = scatteredPositions[i + 1] + (heartPositions[i + 1] - scatteredPositions[i + 1]) * transitionProgress;
+                        positions[i + 2] = scatteredPositions[i + 2] + (heartPositions[i + 2] - scatteredPositions[i + 2]) * transitionProgress;
+                    }
+                    particles.geometry.attributes.position.needsUpdate = true;
+                    requestAnimationFrame(animateTransition);
+                }
+            };
+            animateTransition();
+        }
+
         function animate() {
             requestAnimationFrame(animate);
 
@@ -928,10 +1043,11 @@
                 particles.rotation.y = currentRotationY;
                 particles.rotation.x = currentRotationX;
 
-                particles.position.y = Math.sin(time * 0.5) * 0.5;
-
-                const breathScale = 1 + Math.sin(time * 0.8) * 0.08;
-                particles.scale.set(breathScale, breathScale, breathScale);
+                if (particleMode === 'heart') {
+                    particles.position.y = Math.sin(time * 0.5) * 0.5;
+                    const breathScale = 1 + Math.sin(time * 0.8) * 0.06;
+                    particles.scale.set(breathScale, breathScale, breathScale);
+                }
             }
 
             currentRotationX += (targetRotationX - currentRotationX) * 0.05;
@@ -1010,28 +1126,51 @@
         }
 
         // ==================== TOUCH PULSE ====================
-        document.getElementById('canvas3d').addEventListener('click', pulseEffect);
-        document.getElementById('canvas3d').addEventListener('touchstart', pulseEffect);
+        document.getElementById('canvas3d').addEventListener('click', (e) => {
+            pulseEffect();
+            if (particleMode === 'scattered') {
+                transitionToHeart();
+            }
+        });
+
+        document.getElementById('canvas3d').addEventListener('touchstart', (e) => {
+            pulseEffect();
+            if (particleMode === 'scattered') {
+                transitionToHeart();
+            }
+        });
+
+        // Also trigger on hover for desktop
+        document.getElementById('canvas3d').addEventListener('mouseenter', () => {
+            if (particleMode === 'scattered') {
+                transitionToHeart();
+            }
+        });
 
         function pulseEffect() {
-            if (!particles) return;
+            if (!particles || particleMode !== 'heart') return;
 
-            const positions = particles.geometry.attributes.position.array;
-            const original = positions.slice();
+            const material = particles.material;
+            const originalSize = material.size;
 
-            for (let i = 0; i < positions.length; i += 3) {
-                positions[i] *= 1.5;
-                positions[i + 1] *= 1.5;
-                positions[i + 2] *= 1.5;
-            }
-            particles.geometry.attributes.position.needsUpdate = true;
+            // Pulse size animation
+            let pulseTime = 0;
+            const pulseDuration = 300;
+            const startTime = Date.now();
 
-            setTimeout(() => {
-                for (let i = 0; i < positions.length; i++) {
-                    positions[i] = original[i];
+            const pulsing = () => {
+                pulseTime = Date.now() - startTime;
+                const progress = pulseTime / pulseDuration;
+
+                if (progress < 1) {
+                    const scale = 1 + Math.sin(progress * Math.PI) * 0.8;
+                    material.size = originalSize * scale;
+                    requestAnimationFrame(pulsing);
+                } else {
+                    material.size = originalSize;
                 }
-                particles.geometry.attributes.position.needsUpdate = true;
-            }, 300);
+            };
+            pulsing();
         }
 
         // ==================== COUNTDOWN ====================
@@ -1150,6 +1289,8 @@
         }
 
         // ==================== RECAP MODAL ====================
+        const memoryOverlay = document.getElementById('memoryOverlay');
+
         document.getElementById('btnRecap').addEventListener('click', () => {
             recapModal.classList.add('show');
             recapSound.play().catch(e => console.log('Audio blocked:', e));
@@ -1157,13 +1298,41 @@
 
         document.getElementById('btnCloseRecap').addEventListener('click', () => {
             recapModal.classList.remove('show');
+            closeExpandedMemory();
         });
 
         recapModal.addEventListener('click', (e) => {
             if (e.target === recapModal) {
                 recapModal.classList.remove('show');
+                closeExpandedMemory();
             }
         });
+
+        // Memory card click to expand
+        document.addEventListener('click', (e) => {
+            if (e.target.closest('.memory-card')) {
+                const card = e.target.closest('.memory-card');
+                if (card.classList.contains('expanded')) {
+                    closeExpandedMemory();
+                } else {
+                    // Close any other expanded cards
+                    document.querySelectorAll('.memory-card.expanded').forEach(c => {
+                        c.classList.remove('expanded');
+                    });
+                    card.classList.add('expanded');
+                    memoryOverlay.classList.add('show');
+                }
+            }
+        });
+
+        memoryOverlay.addEventListener('click', closeExpandedMemory);
+
+        function closeExpandedMemory() {
+            document.querySelectorAll('.memory-card.expanded').forEach(card => {
+                card.classList.remove('expanded');
+            });
+            memoryOverlay.classList.remove('show');
+        }
 
         // ==================== MUSIC CONTROL ====================
         musicControl.addEventListener('click', () => {
